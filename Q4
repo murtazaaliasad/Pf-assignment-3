@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct item {
+    int code;
+    int rank;
+    long long touch_time;
+} item;
+
+item *rack = NULL; 
+int filled = 0;
+int max_limit = 0;
+long long timer = 0; 
+
+int search_code(int key) {
+    for (int i = 0; i < filled; i++) {
+        if (rack[i].code == key) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int find_oldest() {
+    long long smallest = rack[0].touch_time;
+    int pos = 0;
+    
+    for (int i = 1; i < filled; i++) {
+        if (rack[i].touch_time < smallest) {
+            smallest = rack[i].touch_time;
+            pos = i;
+        }
+    }
+    return pos;
+}
+
+void insert_item(int key, int value) {
+    int loc = search_code(key);
+    
+    timer++; 
+    
+    if (loc != -1) {
+        rack[loc].rank = value;
+        rack[loc].touch_time = timer;
+        return;
+    }
+    
+    if (filled == max_limit) {
+        int old = find_oldest();
+        
+        rack[old].code = key;
+        rack[old].rank = value;
+        rack[old].touch_time = timer;
+        
+    } else {
+        rack[filled].code = key;
+        rack[filled].rank = value;
+        rack[filled].touch_time = timer;
+        filled++; 
+    }
+}
+
+int read_item(int key) {
+    int loc = search_code(key);
+    
+    if (loc != -1) {
+        timer++;
+        rack[loc].touch_time = timer;
+        return rack[loc].rank;
+    }
+    
+    return -1;
+}
+
+int main() {
+    int ops;
+    
+    printf("--- Input Setup ---\n");
+    printf("Enter max_limit and number of operations: ");
+    
+    scanf("%d %d", &max_limit, &ops);
+
+    if (max_limit < 0) max_limit = 0;
+    
+    if (max_limit > 0) {
+        rack = (item *)malloc(max_limit * sizeof(item));
+    }
+    
+    printf("\n--- Start Operations ---\n");
+    
+    for (int i = 0; i < ops; i++) {
+        char cmd[10];
+        
+        printf("Operation %d of %d: ", i + 1, ops);
+        scanf("%9s", cmd);
+        
+        if (strcmp(cmd, "ADD") == 0) {
+            int key, value;
+            scanf("%d %d", &key, &value);
+            
+            if (max_limit > 0) {
+                insert_item(key, value);
+            }
+        } 
+        else if (strcmp(cmd, "ACCESS") == 0) {
+            int key;
+            scanf("%d", &key);
+            
+            int ans = read_item(key);
+            printf("Result: %d\n", ans);
+        } 
+        else {
+            int ch;
+            while ((ch = getchar()) != '\n' && ch != EOF);
+        }
+    }
+    
+    printf("\n--- Operations Complete ---\n");
+    
+    if (rack != NULL) {
+        free(rack);
+    }
+    
+    return 0;
+}
