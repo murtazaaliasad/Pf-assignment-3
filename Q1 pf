@@ -1,0 +1,38 @@
+#include <stdio.h>
+
+float calculateRepayment(float loan, float interestRate, int years, float fixedInstallment, int currentYear) {
+    if (years == 0 || loan <= 0) {
+        return 0;
+    }
+
+    float annualInterest = loan * interestRate;
+    float newLoan = loan + annualInterest - fixedInstallment;
+
+    if (newLoan < 0) {
+        newLoan = 0;
+    }
+
+    float currentYearRepayment = annualInterest + (loan - newLoan);
+
+    printf("Year %d: Remaining loan = %.2f\n", currentYear, newLoan);
+
+    return currentYearRepayment + calculateRepayment(newLoan, interestRate, years - 1, fixedInstallment, currentYear + 1);
+}
+
+int main() {
+    float initialLoan = 100000.0f;
+    float interestRate = 0.05f;
+    int totalYears = 3;
+    float fixedInstallment = 30000.0f;
+
+    printf("Loan Repayment Schedule\n");
+    printf("Initial Loan: %.2f | Interest Rate: 5%% | Term: %d years | Fixed Installment: %.2f\n",
+           initialLoan, totalYears, fixedInstallment);
+
+    float totalRepayment = calculateRepayment(initialLoan, interestRate, totalYears, fixedInstallment, 1);
+
+    printf("\nSummary\n");
+    printf("Total Repayment after 3 years: %.2f\n", totalRepayment);
+
+    return 0;
+}
