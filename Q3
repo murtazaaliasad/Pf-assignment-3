@@ -1,0 +1,139 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MAX_NAME_LENGTH 50
+#define MAX_DESIGNATION_LENGTH 50
+
+typedef struct {
+    int id;
+    char name[MAX_NAME_LENGTH];
+    char designation[MAX_DESIGNATION_LENGTH];
+    float salary;
+} Employee;
+
+void displayEmployees(Employee employees[], int count) {
+    printf("\nEmployee Records\n");
+
+    printf("ID     Name             Designation      Salary       \n");
+    
+
+    for (int i = 0; i < count; i++) {
+        printf("%-5d  %-16s %-16s %10.2f\n",
+               employees[i].id,
+               employees[i].name,
+               employees[i].designation,
+               employees[i].salary);
+    }
+}
+
+void findHighestSalary(Employee employees[], int count) {
+    if (count == 0) {
+        printf("No employee records to analyze.\n");
+        return;
+    }
+
+    int highestIndex = 0;
+    for (int i = 1; i < count; i++) {
+        if (employees[i].salary > employees[highestIndex].salary) {
+            highestIndex = i;
+        }
+    }
+
+    printf("\nEmployee with the Highest Salary\n");
+    printf("ID: %d\n", employees[highestIndex].id);
+    printf("Name: %s\n", employees[highestIndex].name);
+    printf("Designation: %s\n", employees[highestIndex].designation);
+    printf("Salary: %.2f\n", employees[highestIndex].salary);
+}
+
+void searchEmployee(Employee employees[], int count, int searchId, const char* searchName) {
+    Employee* foundEmployee = NULL;
+
+    if (searchId > 0) {
+        for (int i = 0; i < count; i++) {
+            if (employees[i].id == searchId) {
+                foundEmployee = &employees[i];
+                break;
+            }
+        }
+    } else if (searchName != NULL && strlen(searchName) > 0) {
+        for (int i = 0; i < count; i++) {
+            if (strcmp(employees[i].name, searchName) == 0) {
+                foundEmployee = &employees[i];
+                break;
+            }
+        }
+    }
+
+    if (foundEmployee != NULL) {
+        printf("\nSearch Result Found\n");
+        printf("ID: %d\n", foundEmployee->id);
+        printf("Name: %s\n", foundEmployee->name);
+        printf("Designation: %s\n", foundEmployee->designation);
+        printf("Salary: %.2f\n", foundEmployee->salary);
+    } else {
+        printf("\nSearch Result\n");
+        printf("Employee not found.\n");
+    }
+}
+
+int main() {
+    int n;
+    printf("Enter the number of employees to record: ");
+    if (scanf("%d", &n) != 1 || n <= 0) {
+        printf("Invalid input for number of employees.\n");
+        return 1;
+    }
+
+    Employee* employees = (Employee*)malloc(n * sizeof(Employee));
+    if (employees == NULL) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    printf("\nEnter Employee Data\n");
+    for (int i = 0; i < n; i++) {
+        printf("\nEnter details for Employee %d:\n", i + 1);
+        printf("ID: ");
+        if (scanf("%d", &employees[i].id) != 1) return 1;
+        printf("Name (single word): ");
+        if (scanf("%s", employees[i].name) != 1) return 1;
+        printf("Designation (single word): ");
+        if (scanf("%s", employees[i].designation) != 1) return 1;
+        printf("Salary: ");
+        if (scanf("%f", &employees[i].salary) != 1) return 1;
+    }
+
+    displayEmployees(employees, n);
+    findHighestSalary(employees, n);
+
+    int searchChoice = 0;
+    while (searchChoice != 3) {
+        printf("\nEmployee Search Menu\n");
+        printf("1. Search by ID\n");
+        printf("2. Search by Name\n");
+        printf("3. Exit Search\n");
+        printf("Enter choice (1-3): ");
+        if (scanf("%d", &searchChoice) != 1) break;
+
+        if (searchChoice == 1) {
+            int id;
+            printf("Enter Employee ID to search: ");
+            if (scanf("%d", &id) != 1) break;
+            searchEmployee(employees, n, id, NULL);
+        } else if (searchChoice == 2) {
+            char name[MAX_NAME_LENGTH];
+            printf("Enter Employee Name to search: ");
+            if (scanf("%s", name) != 1) break;
+            searchEmployee(employees, n, 0, name);
+        } else if (searchChoice == 3) {
+            printf("Exiting search.\n");
+        } else {
+            printf("Invalid choice. Please enter 1, 2, or 3.\n");
+        }
+    }
+
+    free(employees);
+    return 0;
+}
